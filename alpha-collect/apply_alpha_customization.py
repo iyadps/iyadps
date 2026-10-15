@@ -329,7 +329,7 @@ replace_exact(
                 android:src="@drawable/alpha_logo_mark"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/google_drive_deprecation_banner" />
+                app:layout_constraintTop_toBottomOf="@+id/google_drive_deprecation_banner" />
 
             <TextView
                 android:id="@+id/alpha_brand_name"
