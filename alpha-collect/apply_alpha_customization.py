@@ -27,6 +27,13 @@ def replace_all(path_rel: str, old: str, new: str):
     print(f"Updated: {path_rel} ({count} replacements)")
 
 
+def write_text(path_rel: str, content: str):
+    path = ROOT / path_rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    print(f"Wrote: {path_rel}")
+
+
 # 1) Hide the large in-form controller ONLY for XLSForm background-audio.
 # Recording, foreground service and media attachment handling are left unchanged.
 path = "collect_app/src/main/java/org/odk/collect/android/audio/AudioRecordingControllerFragment.java"
@@ -189,7 +196,199 @@ for google_services in [
         '"package_name": "com.alphainternational.collect"'
     )
 
+
+# 7) Alpha International visual branding derived from the supplied official logo.
+# Brand colors sampled from the supplied mark: dark #01559D, bright #017CC3.
+
+write_text(
+    "collect_app/src/main/res/drawable/alpha_logo_mark.xml",
+    """<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#01559D" android:pathData="M54,20 L8,84 L32,84 L54,54 Z"/>
+    <path android:fillColor="#01559D" android:pathData="M54,20 L100,84 L76,84 L54,54 Z"/>
+
+    <path android:fillColor="#017CC3" android:pathData="M54,20 L54,38 L43,32 Z"/>
+    <path android:fillColor="#0C84C4" android:pathData="M43,32 L54,38 L33,45 Z"/>
+    <path android:fillColor="#124879" android:pathData="M33,45 L54,38 L54,54 L22,60 Z"/>
+    <path android:fillColor="#017CC3" android:pathData="M22,60 L32,84 L8,84 Z"/>
+    <path android:fillColor="#01559D" android:pathData="M54,54 L32,84 L22,60 Z"/>
+
+    <path android:fillColor="#0C84C4" android:pathData="M54,20 L66,36 L54,38 Z"/>
+    <path android:fillColor="#01559D" android:pathData="M66,36 L79,54 L54,38 Z"/>
+    <path android:fillColor="#017CC3" android:pathData="M54,38 L79,54 L54,54 Z"/>
+    <path android:fillColor="#0C84C4" android:pathData="M54,54 L79,54 L88,69 L63,66 Z"/>
+    <path android:fillColor="#01559D" android:pathData="M63,66 L88,69 L100,84 L76,84 Z"/>
+</vector>
+"""
+)
+
+write_text(
+    "collect_app/src/main/res/drawable/alpha_launcher_icon.xml",
+    """<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M54,2 A52,52 0,1 1 53.99,2 Z"/>
+    <path android:fillColor="#01559D" android:pathData="M54,22 L14,80 L35,80 L54,54 Z"/>
+    <path android:fillColor="#01559D" android:pathData="M54,22 L94,80 L73,80 L54,54 Z"/>
+    <path android:fillColor="#017CC3" android:pathData="M54,22 L54,38 L44,33 Z"/>
+    <path android:fillColor="#0C84C4" android:pathData="M44,33 L54,38 L35,45 Z"/>
+    <path android:fillColor="#124879" android:pathData="M35,45 L54,38 L54,54 L25,59 Z"/>
+    <path android:fillColor="#017CC3" android:pathData="M25,59 L35,80 L14,80 Z"/>
+    <path android:fillColor="#0C84C4" android:pathData="M54,22 L65,36 L54,38 Z"/>
+    <path android:fillColor="#01559D" android:pathData="M65,36 L76,52 L54,38 Z"/>
+    <path android:fillColor="#017CC3" android:pathData="M54,38 L76,52 L54,54 Z"/>
+    <path android:fillColor="#0C84C4" android:pathData="M54,54 L76,52 L85,66 L63,64 Z"/>
+    <path android:fillColor="#01559D" android:pathData="M63,64 L85,66 L94,80 L73,80 Z"/>
+</vector>
+"""
+)
+
+write_text(
+    "collect_app/src/main/res/values/alpha_branding.xml",
+    """<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alpha_brand_name" translatable="false">ALPHA INTERNATIONAL</string>
+    <string name="alpha_brand_tagline" translatable="false">Research · Polling · Informatics</string>
+</resources>
+"""
+)
+
+# Use Alpha mark as the launcher icon for all supported Android versions.
+replace_exact(
+    "collect_app/src/main/AndroidManifest.xml",
+    'android:icon="@mipmap/ic_launcher"',
+    'android:icon="@drawable/alpha_launcher_icon"'
+)
+replace_exact(
+    "collect_app/src/main/AndroidManifest.xml",
+    'android:roundIcon="@mipmap/ic_launcher_round"',
+    'android:roundIcon="@drawable/alpha_launcher_icon"'
+)
+
+# Android 12+ splash screen.
+replace_exact(
+    "collect_app/src/main/res/values/theme.xml",
+    '<item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_screen_icon</item>',
+    '<item name="windowSplashScreenAnimatedIcon">@drawable/alpha_launcher_icon</item>'
+)
+
+# First-launch screen: replace Kobo symbol with Alpha mark and official Alpha wording.
+replace_exact(
+    "collect_app/src/main/res/layout/first_launch_layout.xml",
+    '''            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/collect_app_name"
+                android:src="@drawable/kobologo_symbol_cropped"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />''',
+    '''            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="140dp"
+                android:layout_height="108dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/collect_app_name"
+                android:src="@drawable/alpha_logo_mark"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />'''
+)
+
+replace_exact(
+    "collect_app/src/main/res/layout/first_launch_layout.xml",
+    'android:text="@string/tagline"',
+    'android:text="@string/alpha_brand_name"'
+)
+replace_exact(
+    "collect_app/src/main/res/layout/first_launch_layout.xml",
+    'app:layout_constraintStart_toStartOf="parent"\n                app:layout_constraintTop_toBottomOf="@id/logo" />',
+    'app:layout_constraintEnd_toEndOf="parent"\n                app:layout_constraintStart_toStartOf="parent"\n                app:layout_constraintTop_toBottomOf="@id/logo" />'
+)
+
+# Main menu branding above fieldwork actions.
+replace_exact(
+    "collect_app/src/main/res/layout/main_menu.xml",
+    '''            <org.odk.collect.android.mainmenu.StartNewFormButton
+                android:id="@+id/enter_data"''',
+    '''            <ImageView
+                android:id="@+id/alpha_brand_logo"
+                android:layout_width="92dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="@dimen/margin_standard"
+                android:contentDescription="@string/alpha_brand_name"
+                android:src="@drawable/alpha_logo_mark"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/google_drive_deprecation_banner" />
+
+            <TextView
+                android:id="@+id/alpha_brand_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/alpha_brand_name"
+                android:textAppearance="?textAppearanceSubtitle1"
+                android:textColor="#01559D"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/alpha_brand_logo" />
+
+            <TextView
+                android:id="@+id/alpha_brand_tagline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_extra_small"
+                android:text="@string/alpha_brand_tagline"
+                android:textAppearance="?textAppearanceCaption"
+                android:textColor="#017CC3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/alpha_brand_name" />
+
+            <org.odk.collect.android.mainmenu.StartNewFormButton
+                android:id="@+id/enter_data"'''
+)
+
+replace_exact(
+    "collect_app/src/main/res/layout/main_menu.xml",
+    'app:layout_constraintTop_toBottomOf="@id/google_drive_deprecation_banner" />',
+    'app:layout_constraintTop_toBottomOf="@id/alpha_brand_tagline" />'
+)
+
+# Shift the main app palette from Kobo cyan to Alpha International blue.
+replace_exact(
+    "collect_app/src/main/res/values/colors.xml",
+    '<color name="colorPrimaryLight">#3e9fcc</color>',
+    '<color name="colorPrimaryLight">#01559D</color>'
+)
+replace_exact(
+    "collect_app/src/main/res/values/colors.xml",
+    '<color name="colorPrimaryContainerLight">#bfe9ff</color>',
+    '<color name="colorPrimaryContainerLight">#D9EEFA</color>'
+)
+replace_exact(
+    "collect_app/src/main/res/values/colors.xml",
+    '<color name="colorPrimaryDark">#4cbcf0</color>',
+    '<color name="colorPrimaryDark">#017CC3</color>'
+)
+replace_exact(
+    "collect_app/src/main/res/values/colors.xml",
+    '<color name="colorPrimaryContainerDark">#004d65</color>',
+    '<color name="colorPrimaryContainerDark">#013B6D</color>'
+)
+
+
 print("\nAlpha Collect customization applied successfully.")
 print("Application ID: com.alphainternational.collect")
 print("Background recording engine and submission attachment saving were not modified.")
 print("Android foreground-service recording notification remains enabled.")
+print("Alpha International launcher, splash, first-launch and main-menu branding applied.")
