@@ -1,4 +1,4 @@
-name: Build Alpha Collect APK
+name: Build Alpha Collect Branded APK
 
 on:
   push:
@@ -15,7 +15,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout Alpha build files
@@ -41,37 +41,44 @@ jobs:
           git checkout b8682768b4592f7105a7b7b278328726db4a282b
           chmod +x gradlew
 
-      - name: Apply Alpha customization
+      - name: Apply Alpha customization and branding
         shell: bash
         run: |
           python3 alpha-collect/apply_alpha_customization.py kobo-collect
 
-      - name: Build installable Alpha Collect APK
+      - name: Run focused background-audio tests
         working-directory: kobo-collect
         shell: bash
         run: |
-          ./gradlew :collect_app:assembleDebug --stacktrace --no-daemon
+          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.audio.AudioRecordingControllerFragmentTest" --stacktrace --no-daemon
 
-      - name: Prepare APK and checksum
+      - name: Build signed Alpha Collect pilot APK
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:assembleSelfSignedRelease --stacktrace --no-daemon
+
+      - name: Verify package and prepare checksum
         shell: bash
         run: |
           mkdir -p dist
-          APK="$(find kobo-collect/collect_app/build/outputs/apk/debug -type f -name '*.apk' | head -n 1)"
+          APK="$(find kobo-collect/collect_app/build/outputs/apk -type f -name '*.apk' | grep -i self | head -n 1)"
           if [ -z "$APK" ]; then
-            echo "Debug APK not found"
+            echo "Self-signed release APK not found"
             find kobo-collect/collect_app/build/outputs/apk -type f -name '*.apk' -print || true
             exit 1
           fi
-          cp "$APK" dist/Alpha-Collect-Pilot.apk
-          sha256sum dist/Alpha-Collect-Pilot.apk > dist/Alpha-Collect-Pilot.sha256
+          cp "$APK" dist/Alpha-Collect-Branded-Pilot.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging dist/Alpha-Collect-Branded-Pilot.apk | head -n 8
+          sha256sum dist/Alpha-Collect-Branded-Pilot.apk > dist/Alpha-Collect-Branded-Pilot.sha256
           ls -lh dist
 
-      - name: Upload Alpha APK
+      - name: Upload branded Alpha APK
         uses: actions/upload-artifact@v4
         with:
-          name: Alpha-Collect-Pilot
+          name: Alpha-Collect-Branded-Pilot
           path: |
-            dist/Alpha-Collect-Pilot.apk
-            dist/Alpha-Collect-Pilot.sha256
+            dist/Alpha-Collect-Branded-Pilot.apk
+            dist/Alpha-Collect-Branded-Pilot.sha256
           if-no-files-found: error
           retention-days: 7
