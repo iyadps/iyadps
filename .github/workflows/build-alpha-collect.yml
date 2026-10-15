@@ -1,0 +1,84 @@
+name: Build Alpha Collect APK
+
+on:
+  push:
+    branches:
+      - alpha-collect-build
+    paths:
+      - ".github/workflows/build-alpha-collect.yml"
+      - "alpha-collect/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Alpha build files
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Ensure Android SDK 35
+        shell: bash
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Clone pinned KoboCollect source
+        shell: bash
+        run: |
+          git clone https://github.com/kobotoolbox/collect.git kobo-collect
+          cd kobo-collect
+          git checkout b8682768b4592f7105a7b7b278328726db4a282b
+          git status --short
+
+      - name: Apply Alpha customization
+        shell: bash
+        run: |
+          python3 alpha-collect/apply_alpha_customization.py kobo-collect
+
+      - name: Run focused audio-controller tests
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          chmod +x gradlew
+          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.audio.AudioRecordingControllerFragmentTest" --stacktrace
+
+      - name: Build installable Alpha Collect APK
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:assembleSelfSignedRelease --stacktrace
+
+      - name: Prepare APK and checksum
+        shell: bash
+        run: |
+          mkdir -p dist
+          APK="$(find kobo-collect/collect_app/build/outputs/apk -type f -name '*.apk' | grep -i self | head -n 1)"
+          if [ -z "$APK" ]; then
+            echo "Self-signed release APK not found"
+            find kobo-collect/collect_app/build/outputs/apk -type f -maxdepth 5 -print || true
+            exit 1
+          fi
+          cp "$APK" dist/Alpha-Collect-Pilot.apk
+          sha256sum dist/Alpha-Collect-Pilot.apk > dist/Alpha-Collect-Pilot.sha256
+          ls -lh dist
+
+      - name: Upload Alpha APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Alpha-Collect-Pilot
+          path: |
+            dist/Alpha-Collect-Pilot.apk
+            dist/Alpha-Collect-Pilot.sha256
+          if-no-files-found: error
+          retention-days: 7
