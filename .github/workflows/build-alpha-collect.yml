@@ -26,7 +26,6 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-          cache: gradle
 
       - name: Ensure Android SDK 35
         shell: bash
