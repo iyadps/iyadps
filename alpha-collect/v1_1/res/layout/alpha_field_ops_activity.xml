@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/alpha_assignment_heading"
+            android:textAppearance="?textAppearanceHeadline6" />
+
+        <TextView
+            android:id="@+id/alpha_device_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?textAppearanceBody2" />
+
+        <EditText
+            android:id="@+id/alpha_project_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="@string/alpha_project_id"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/alpha_enumerator_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/alpha_enumerator_id"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/alpha_supervisor_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/alpha_supervisor_id"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/alpha_ea_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/alpha_ea_id"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/alpha_save_assignment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/alpha_save_assignment" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="#D0D0D0" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/alpha_master_frame_heading"
+            android:textAppearance="?textAppearanceHeadline6" />
+
+        <TextView
+            android:id="@+id/alpha_frame_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?textAppearanceBody2" />
+
+        <ProgressBar
+            android:id="@+id/alpha_import_progress"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/alpha_import_frame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/alpha_import_master_frame" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/alpha_csv_help"
+            android:textAppearance="?textAppearanceCaption" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="#D0D0D0" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/alpha_lookup_heading"
+            android:textAppearance="?textAppearanceHeadline6" />
+
+        <EditText
+            android:id="@+id/alpha_search_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/alpha_lookup_hint"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/alpha_search_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/alpha_search" />
+
+        <TextView
+            android:id="@+id/alpha_search_results"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:paddingBottom="24dp"
+            android:textAppearance="?textAppearanceBody2" />
+
+    </LinearLayout>
+</ScrollView>
