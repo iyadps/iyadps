@@ -158,15 +158,15 @@ class AlphaFieldDatabase(context: Context) :
     }
 
     private fun duplicateCount(column: String, ignoreBlank: Boolean = false): Int {
-        val where = if (ignoreBlank) "WHERE ${column IS NOT NULL AND ${column <> ''" else ""
+        val where = if (ignoreBlank) "WHERE ${column} IS NOT NULL AND ${column} <> ''" else ""
         return scalarCount(
             """
             SELECT COALESCE(SUM(c - 1), 0)
             FROM (
                 SELECT COUNT(*) AS c
                 FROM master_frame
-                ${where
-                GROUP BY ${column
+                ${where}
+                GROUP BY ${column}
                 HAVING COUNT(*) > 1
             )
             """.trimIndent()
