@@ -60,13 +60,23 @@ replace_exact(
 )
 replace_exact(
     "collect_app/src/main/AndroidManifest.xml",
-    'android:authorities="org.koboc.collect.android.provider.odk.forms"',
+    'android:authorities="com.alphainternational.collect.provider.odk.forms"',
     'android:authorities="com.alphainternational.collect.test.provider.odk.forms"',
 )
 replace_exact(
     "collect_app/src/main/AndroidManifest.xml",
-    'android:authorities="org.koboc.collect.android.provider.odk.instances"',
+    'android:authorities="com.alphainternational.collect.provider.odk.instances"',
     'android:authorities="com.alphainternational.collect.test.provider.odk.instances"',
+)
+replace_exact(
+    "collect_app/src/main/java/org/odk/collect/android/external/FormsContract.java",
+    'static final String AUTHORITY = "com.alphainternational.collect.provider.odk.forms";',
+    'static final String AUTHORITY = "com.alphainternational.collect.test.provider.odk.forms";',
+)
+replace_exact(
+    "collect_app/src/main/java/org/odk/collect/android/external/InstancesContract.java",
+    'public static final String AUTHORITY = "com.alphainternational.collect.provider.odk.instances";',
+    'public static final String AUTHORITY = "com.alphainternational.collect.test.provider.odk.instances";',
 )
 
 # 2) Add Alpha Field Operations source, resources and focused parser tests.
