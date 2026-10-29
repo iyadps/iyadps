@@ -74,6 +74,12 @@ replace_exact(
 # 4) Expose Alpha Field Operations on the main menu.
 replace_exact(
     "collect_app/src/main/res/layout/main_menu.xml",
+    'app:layout_constraintTop_toBottomOf="@id/alpha_brand_tagline" />',
+    'app:layout_constraintTop_toBottomOf="@id/alpha_field_ops" />'
+)
+
+replace_exact(
+    "collect_app/src/main/res/layout/main_menu.xml",
     '''            <org.odk.collect.android.mainmenu.StartNewFormButton
                 android:id="@+id/enter_data"''',
     '''            <org.odk.collect.android.mainmenu.MainMenuButton
@@ -91,12 +97,6 @@ replace_exact(
             <org.odk.collect.android.mainmenu.StartNewFormButton
                 android:id="@+id/enter_data"'''
 )
-replace_exact(
-    "collect_app/src/main/res/layout/main_menu.xml",
-    'app:layout_constraintTop_toBottomOf="@id/alpha_brand_tagline" />',
-    'app:layout_constraintTop_toBottomOf="@id/alpha_field_ops" />'
-)
-
 # 5) Launch the new activity from the generated view binding.
 replace_exact(
     "collect_app/src/main/java/org/odk/collect/android/mainmenu/MainMenuFragment.kt",
