@@ -1,0 +1,11 @@
+record_id,ea_id,latitude,longitude,status
+HH-001,EA-DEMO,31.532,35.092,pending
+HH-002,EA-DEMO,31.533,35.093,completed
+HH-003,EA-DEMO,31.534,35.094,refused
+HH-004,EA-DEMO,31.535,35.095,revisit
+HH-005,EA-DEMO,31.536,35.096,vacant
+HH-006,EA-DEMO,31.537,35.097,not_found
+HH-007,EA-DEMO,31.538,35.098,unavailable
+HH-008,EA-DEMO,31.535,35.095,pending
+HH-NO-GPS,EA-DEMO,,,pending
+HH-OTHER,OTHER-EA,31.531,35.091,pending
