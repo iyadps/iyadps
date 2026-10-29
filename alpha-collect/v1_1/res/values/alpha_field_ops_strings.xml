@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alpha_field_ops">Alpha Field Operations</string>
+    <string name="alpha_assignment_heading">Enumerator &amp; EA assignment</string>
+    <string name="alpha_device_value">Device ID: %1$s</string>
+    <string name="alpha_project_id">Project ID</string>
+    <string name="alpha_enumerator_id">Enumerator ID</string>
+    <string name="alpha_supervisor_id">Supervisor ID (optional)</string>
+    <string name="alpha_ea_id">Assigned EA ID</string>
+    <string name="alpha_save_assignment">Save assignment</string>
+    <string name="alpha_assignment_required">Enumerator ID and EA ID are required.</string>
+    <string name="alpha_assignment_saved">Assignment saved.</string>
+    <string name="alpha_master_frame_heading">Offline master frame</string>
+    <string name="alpha_import_master_frame">Import master-frame CSV</string>
+    <string name="alpha_importing_frame">Importing master frame…</string>
+    <string name="alpha_import_complete">Imported %1$d records. Duplicate IDs: %2$d. Duplicate phones: %3$d.</string>
+    <string name="alpha_import_failed">Import failed: %1$s</string>
+    <string name="alpha_frame_summary_value">Master frame: %1$d records · Assigned EA: %2$s · EA records: %3$d</string>
+    <string name="alpha_csv_help">Required CSV columns: record_id and ea_id. Optional: latitude, longitude, phone, status. Common aliases such as building_id, household_id, lat/lon and mobile are accepted.</string>
+    <string name="alpha_lookup_heading">Case lookup &amp; duplicate check</string>
+    <string name="alpha_lookup_hint">Record/building/household ID or phone</string>
+    <string name="alpha_search">Search assigned EA</string>
+    <string name="alpha_searching">Searching…</string>
+    <string name="alpha_enter_lookup">Enter an ID or phone number.</string>
+    <string name="alpha_no_matches">No matching records found in the assigned EA.</string>
+</resources>
