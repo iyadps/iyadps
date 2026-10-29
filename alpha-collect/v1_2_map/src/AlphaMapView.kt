@@ -122,8 +122,8 @@ class AlphaMapView(context: Context) : View(context) {
                     centerX -= (event.x - lastX) / scale; centerY -= (event.y - lastY) / scale; invalidate()
                 }
             }
-            MotionEvent.ACTION_UP -> { if (!moved) { performClick(); onCases(hit(event.x, event.y)) }; parent?.requestDisallowInterceptTouchEvent(true) }
-            MotionEvent.ACTION_CANCEL -> moved = true
+            MotionEvent.ACTION_UP -> { if (!moved) { performClick(); onCases(hit(event.x, event.y)) }; parent?.requestDisallowInterceptTouchEvent(false) }
+            MotionEvent.ACTION_CANCEL -> { moved = true; parent?.requestDisallowInterceptTouchEvent(false) }
             MotionEvent.ACTION_POINTER_DOWN -> moved = true
         }
         lastX = event.x; lastY = event.y

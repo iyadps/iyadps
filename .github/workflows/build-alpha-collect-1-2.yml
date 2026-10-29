@@ -46,27 +46,16 @@ jobs:
         run: |
           python3 alpha-collect/apply_alpha_1_2_map.py kobo-collect
 
-      - name: Run Alpha master-frame parser tests
+      - name: Run map, master-frame, GPS and background-audio regression tests
         working-directory: kobo-collect
         shell: bash
         run: |
-          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.alpha.AlphaCsvParserTest" --stacktrace --no-daemon
-
-      - name: Run Alpha GPS and case-selection rule tests
-        working-directory: kobo-collect
-        shell: bash
-        run: |
-          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.alpha.AlphaFieldRulesTest" --stacktrace --no-daemon
-
-      - name: Run offline map tests
-        working-directory: kobo-collect
-        run: ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.alpha.AlphaMapTest" --stacktrace --no-daemon
-
-      - name: Run background-audio regression tests
-        working-directory: kobo-collect
-        shell: bash
-        run: |
-          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.audio.AudioRecordingControllerFragmentTest" --stacktrace --no-daemon
+          ./gradlew :collect_app:testDebugUnitTest \
+            --tests "org.odk.collect.android.alpha.AlphaCsvParserTest" \
+            --tests "org.odk.collect.android.alpha.AlphaFieldRulesTest" \
+            --tests "org.odk.collect.android.alpha.AlphaMapTest" \
+            --tests "org.odk.collect.android.audio.AudioRecordingControllerFragmentTest" \
+            --stacktrace --no-daemon
 
       - name: Build signed Alpha Collect 1.2 test APK
         working-directory: kobo-collect

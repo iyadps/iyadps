@@ -173,6 +173,7 @@ class AlphaMapActivity : AppCompatActivity() {
         locationText = "Acquiring GPS (up to 30 seconds)…"; summary()
         val callback = object : LocationListener {
             override fun onLocationChanged(location: Location) {
+                if (listener !== this) return
                 val age = (SystemClock.elapsedRealtimeNanos() - location.elapsedRealtimeNanos) / 1_000_000
                 if (age !in 0..120000) return
                 val point = runCatching { AlphaMapPoint(location.latitude, location.longitude) }.getOrNull() ?: return
