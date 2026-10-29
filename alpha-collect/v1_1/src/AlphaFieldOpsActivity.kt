@@ -187,11 +187,11 @@ class AlphaFieldOpsActivity : AppCompatActivity() {
                     val risk = if (recordDuplicates > 1 || phoneDuplicates > 1) "HIGH" else "LOW"
 
                     buildString {
-                        append("ID: ${row.recordId")
-                        append("\nEA: ${row.eaId")
+                        append("ID: ${row.recordId}")
+                        append("\nEA: ${row.eaId}")
                         row.phone?.let { append("\nPhone: $it") }
                         if (row.latitude != null && row.longitude != null) {
-                            append("\nGPS: ${row.latitude, ${row.longitude")
+                            append("\nGPS: ${row.latitude}, ${row.longitude}")
                         }
                         row.status?.let { append("\nStatus: $it") }
                         append("\nDuplicate risk: $risk")
