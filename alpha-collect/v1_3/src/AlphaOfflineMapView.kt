@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
+import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
@@ -19,7 +20,10 @@ import kotlin.math.min
  * Offline vector EA map. Uses WGS84 coordinates; does not require tiles or a network.
  * A background street/satellite basemap is deliberately NOT claimed or supplied.
  */
-class AlphaOfflineMapView(context: Context) : View(context) {
+class AlphaOfflineMapView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null
+) : View(context, attrs) {
 
     var onCaseSelected: ((AlphaFrameRow) -> Unit)? = null
 
