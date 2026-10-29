@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alpha_map_title">Alpha Offline EA Map</string>
+    <string name="alpha_map_open">View assigned EA map</string>
+    <string name="alpha_map_missing_ea">Save an assigned EA before opening the map.</string>
+    <string name="alpha_map_loading">Loading assigned EA records from offline database…</string>
+    <string name="alpha_map_loaded">EA: %1$s · Mapped: %2$d of %3$d · Boundary vertices: %4$d</string>
+    <string name="alpha_map_importing">Importing EA boundary CSV…</string>
+    <string name="alpha_map_imported">Imported %1$d EA boundary vertices.</string>
+    <string name="alpha_map_import_failed">Map load or import failed: %1$s</string>
+    <string name="alpha_map_refresh">Refresh</string>
+    <string name="alpha_map_my_location">My GPS</string>
+    <string name="alpha_map_reset">Fit</string>
+    <string name="alpha_map_import_boundary">Import EA CSV</string>
+    <string name="alpha_map_use_case">Select building</string>
+    <string name="alpha_map_no_selection">Tap a building dot to see its ID and status.</string>
+    <string name="alpha_map_selected_record">ID: %1$s · Status: %2$s · GPS: %3$.6f, %4$.6f</string>
+    <string name="alpha_map_gps_value">Current GPS: %1$.6f, %2$.6f (accuracy ±%3$.1f m)</string>
+    <string name="alpha_map_legend">Blue: pending · Green: completed · Orange: revisit · Red: refused · Gray: other · Dark outline: selected · Blue halo: your GPS. Pinch to zoom, drag to move. Offline vector map: no street tiles.</string>
+    <string name="alpha_map_content_description">Offline enumeration area boundary and building locations. Tap a building to select it.</string>
+</resources>
