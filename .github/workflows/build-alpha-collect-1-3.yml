@@ -1,0 +1,115 @@
+name: Build Alpha Collect 1.3 Test APK
+
+on:
+  push:
+    branches:
+      - alpha-collect-1.3-dev
+    paths:
+      - ".github/workflows/build-alpha-collect-1-2.yml"
+      - "alpha-collect/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Alpha build files
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Ensure Android SDK 35
+        shell: bash
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Clone pinned KoboCollect source
+        shell: bash
+        run: |
+          git clone --filter=blob:none https://github.com/kobotoolbox/collect.git kobo-collect
+          cd kobo-collect
+          git checkout b8682768b4592f7105a7b7b278328726db4a282b
+          chmod +x gradlew
+
+      - name: Apply Alpha 1.3 field-control customization
+        shell: bash
+        run: |
+          python3 alpha-collect/apply_alpha_1_3.py kobo-collect
+
+      - name: Run Alpha master-frame parser tests
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.alpha.AlphaCsvParserTest" --stacktrace --no-daemon
+
+      - name: Run Alpha GPS and case-selection rule tests
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.alpha.AlphaFieldRulesTest" --stacktrace --no-daemon
+
+      - name: Run Alpha offline map geometry tests
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.alpha.AlphaMapGeometryTest" --stacktrace --no-daemon
+
+      - name: Run background-audio regression tests
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.audio.AudioRecordingControllerFragmentTest" --stacktrace --no-daemon
+
+      - name: Build signed Alpha Collect 1.3 test APK
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:assembleSelfSignedRelease --stacktrace --no-daemon
+
+      - name: Verify signed test package
+        shell: bash
+        run: |
+          mkdir -p dist
+          APK="$(find kobo-collect/collect_app/build/outputs/apk -type f -name '*.apk' | grep -i 'selfsignedrelease' | head -n 1)"
+          if [ -z "$APK" ]; then
+            echo "Signed Alpha Collect 1.3 test APK not found"
+            find kobo-collect/collect_app/build/outputs/apk -type f -name '*.apk' -print || true
+            exit 1
+          fi
+
+          cp "$APK" dist/Alpha-Collect-1.3.0-test1.apk
+
+          BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging dist/Alpha-Collect-1.3.0-test1.apk)"
+          echo "$BADGING" | head -n 10
+          echo "$BADGING" | grep -q "package: name='com.alphainternational.collect.test'"
+          echo "$BADGING" | grep -q "versionCode='4154'"
+          echo "$BADGING" | grep -q "versionName='1.3.0-test1'"
+          echo "$BADGING" | grep -q "application-label:'Alpha Collect Test'"
+
+          PERMISSIONS="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump permissions dist/Alpha-Collect-1.3.0-test1.apk)"
+          echo "$PERMISSIONS" | grep -q "android.permission.RECORD_AUDIO"
+          echo "$PERMISSIONS" | grep -q "android.permission.ACCESS_FINE_LOCATION"
+
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/Alpha-Collect-1.3.0-test1.apk
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -P 16 -v 4 dist/Alpha-Collect-1.3.0-test1.apk
+          sha256sum dist/Alpha-Collect-1.3.0-test1.apk > dist/Alpha-Collect-1.3.0-test1.sha256
+
+      - name: Upload ready-to-test Alpha Collect 1.3 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Alpha-Collect-1.3.0-test1-Ready
+          path: |
+            dist/Alpha-Collect-1.3.0-test1.apk
+            dist/Alpha-Collect-1.3.0-test1.sha256
+          if-no-files-found: error
+          retention-days: 7
