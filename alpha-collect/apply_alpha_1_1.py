@@ -151,6 +151,7 @@ replace_exact(
 )
 
 print("\nAlpha Collect 1.1 development customization applied.")
-print("Test package: com.alphainternational.collect.test")\nprint("Version: 1.1.0-test1 (4152)")
+print("Test package: com.alphainternational.collect.test")
+print("Version: 1.1.0-test1 (4152)")
 print("Features: field assignment, device identity, offline SQLite master frame, local lookup and duplicate-risk checks.")
 print("The 1.0.0 production branch and APK are unchanged.")
