@@ -58,39 +58,42 @@ jobs:
         run: |
           ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.audio.AudioRecordingControllerFragmentTest" --stacktrace --no-daemon
 
-      - name: Build unsigned Alpha Collect 1.1 development APK
+      - name: Build signed Alpha Collect 1.1 test APK
         working-directory: kobo-collect
         shell: bash
         run: |
-          ./gradlew :collect_app:assembleRelease --stacktrace --no-daemon
+          ./gradlew :collect_app:assembleSelfSignedRelease --stacktrace --no-daemon
 
-      - name: Verify package and version
+      - name: Verify signed test package
         shell: bash
         run: |
           mkdir -p dist
-          APK="$(find kobo-collect/collect_app/build/outputs/apk/release -type f -name '*release-unsigned.apk' | head -n 1)"
+          APK="$(find kobo-collect/collect_app/build/outputs/apk -type f -name '*.apk' | grep -i 'selfsignedrelease' | head -n 1)"
           if [ -z "$APK" ]; then
-            echo "Unsigned 1.1 development APK not found"
+            echo "Signed 1.1 test APK not found"
+            find kobo-collect/collect_app/build/outputs/apk -type f -name '*.apk' -print || true
             exit 1
           fi
 
-          cp "$APK" dist/Alpha-Collect-1.1.0-dev1-unsigned.apk
+          cp "$APK" dist/Alpha-Collect-1.1.0-test1.apk
 
-          BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging dist/Alpha-Collect-1.1.0-dev1-unsigned.apk)"
+          BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging dist/Alpha-Collect-1.1.0-test1.apk)"
           echo "$BADGING" | head -n 8
-          echo "$BADGING" | grep -q "package: name='com.alphainternational.collect'"
+          echo "$BADGING" | grep -q "package: name='com.alphainternational.collect.test'"
           echo "$BADGING" | grep -q "versionCode='4152'"
-          echo "$BADGING" | grep -q "versionName='1.1.0-dev1'"
-          echo "$BADGING" | grep -q "application-label:'Alpha Collect'"
+          echo "$BADGING" | grep -q "versionName='1.1.0-test1'"
+          echo "$BADGING" | grep -q "application-label:'Alpha Collect Test'"
 
-          sha256sum dist/Alpha-Collect-1.1.0-dev1-unsigned.apk > dist/Alpha-Collect-1.1.0-dev1-unsigned.sha256
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/Alpha-Collect-1.1.0-test1.apk
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -P 16 -v 4 dist/Alpha-Collect-1.1.0-test1.apk
+          sha256sum dist/Alpha-Collect-1.1.0-test1.apk > dist/Alpha-Collect-1.1.0-test1.sha256
 
-      - name: Upload Alpha Collect 1.1 development APK
+      - name: Upload ready-to-test Alpha Collect 1.1 APK
         uses: actions/upload-artifact@v4
         with:
-          name: Alpha-Collect-1.1.0-dev1-Unsigned
+          name: Alpha-Collect-1.1.0-test1-Ready
           path: |
-            dist/Alpha-Collect-1.1.0-dev1-unsigned.apk
-            dist/Alpha-Collect-1.1.0-dev1-unsigned.sha256
+            dist/Alpha-Collect-1.1.0-test1.apk
+            dist/Alpha-Collect-1.1.0-test1.sha256
           if-no-files-found: error
           retention-days: 7
