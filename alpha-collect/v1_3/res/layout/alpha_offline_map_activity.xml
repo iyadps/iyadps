@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/alpha_map_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="6dp"
+        android:textAppearance="?textAppearanceBody2" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/alpha_map_refresh"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/alpha_map_refresh" />
+
+        <Button
+            android:id="@+id/alpha_map_my_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/alpha_map_my_location" />
+
+        <Button
+            android:id="@+id/alpha_map_reset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/alpha_map_reset" />
+    </LinearLayout>
+
+    <org.odk.collect.android.alpha.AlphaOfflineMapView
+        android:id="@+id/alpha_ea_map_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:minHeight="250dp"
+        android:contentDescription="@string/alpha_map_content_description" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:text="@string/alpha_map_legend"
+        android:textAppearance="?textAppearanceCaption" />
+
+    <TextView
+        android:id="@+id/alpha_map_gps_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:textAppearance="?textAppearanceCaption" />
+
+    <TextView
+        android:id="@+id/alpha_map_selection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textAppearance="?textAppearanceBody1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/alpha_map_import_boundary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/alpha_map_import_boundary" />
+
+        <Button
+            android:id="@+id/alpha_map_use_case"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/alpha_map_use_case" />
+    </LinearLayout>
+</LinearLayout>
