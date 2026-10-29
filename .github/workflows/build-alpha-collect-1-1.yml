@@ -1,0 +1,96 @@
+name: Build Alpha Collect 1.1 Dev APK
+
+on:
+  push:
+    branches:
+      - alpha-collect-1.1-dev
+    paths:
+      - ".github/workflows/build-alpha-collect-1-1.yml"
+      - "alpha-collect/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Alpha build files
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Ensure Android SDK 35
+        shell: bash
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Clone pinned KoboCollect source
+        shell: bash
+        run: |
+          git clone --filter=blob:none https://github.com/kobotoolbox/collect.git kobo-collect
+          cd kobo-collect
+          git checkout b8682768b4592f7105a7b7b278328726db4a282b
+          chmod +x gradlew
+
+      - name: Apply Alpha 1.1 development customization
+        shell: bash
+        run: |
+          python3 alpha-collect/apply_alpha_1_1.py kobo-collect
+
+      - name: Run Alpha parser tests
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.alpha.AlphaCsvParserTest" --stacktrace --no-daemon
+
+      - name: Run background-audio regression tests
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:testDebugUnitTest --tests "org.odk.collect.android.audio.AudioRecordingControllerFragmentTest" --stacktrace --no-daemon
+
+      - name: Build unsigned Alpha Collect 1.1 development APK
+        working-directory: kobo-collect
+        shell: bash
+        run: |
+          ./gradlew :collect_app:assembleRelease --stacktrace --no-daemon
+
+      - name: Verify package and version
+        shell: bash
+        run: |
+          mkdir -p dist
+          APK="$(find kobo-collect/collect_app/build/outputs/apk/release -type f -name '*release-unsigned.apk' | head -n 1)"
+          if [ -z "$APK" ]; then
+            echo "Unsigned 1.1 development APK not found"
+            exit 1
+          fi
+
+          cp "$APK" dist/Alpha-Collect-1.1.0-dev1-unsigned.apk
+
+          BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging dist/Alpha-Collect-1.1.0-dev1-unsigned.apk)"
+          echo "$BADGING" | head -n 8
+          echo "$BADGING" | grep -q "package: name='com.alphainternational.collect'"
+          echo "$BADGING" | grep -q "versionCode='4152'"
+          echo "$BADGING" | grep -q "versionName='1.1.0-dev1'"
+          echo "$BADGING" | grep -q "application-label:'Alpha Collect'"
+
+          sha256sum dist/Alpha-Collect-1.1.0-dev1-unsigned.apk > dist/Alpha-Collect-1.1.0-dev1-unsigned.sha256
+
+      - name: Upload Alpha Collect 1.1 development APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Alpha-Collect-1.1.0-dev1-Unsigned
+          path: |
+            dist/Alpha-Collect-1.1.0-dev1-unsigned.apk
+            dist/Alpha-Collect-1.1.0-dev1-unsigned.sha256
+          if-no-files-found: error
+          retention-days: 7
