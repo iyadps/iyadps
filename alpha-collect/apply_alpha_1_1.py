@@ -54,7 +54,7 @@ for google_services in (
 # Make the test build visually distinct and prevent provider-authority collisions
 # with the production Alpha Collect app installed on the same tablet.
 replace_exact(
-    "collect_app/src/main/res/values/strings.xml",
+    "strings/src/main/res/values/untranslated.xml",
     '<string name="collect_app_name" translatable="false">Alpha Collect</string>',
     '<string name="collect_app_name" translatable="false">Alpha Collect Test</string>',
 )
