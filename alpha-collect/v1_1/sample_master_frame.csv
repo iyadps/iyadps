@@ -1,0 +1,4 @@
+record_id,ea_id,latitude,longitude,phone,status
+BLD-00001,EA-HB-001,31.53210,35.09520,0599123456,pending
+BLD-00002,EA-HB-001,31.53235,35.09565,0599765432,pending
+HH-00003,EA-HB-002,31.53180,35.09490,0568123456,completed
