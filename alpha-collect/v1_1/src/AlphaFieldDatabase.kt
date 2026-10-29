@@ -101,11 +101,11 @@ class AlphaFieldDatabase(context: Context) :
         val args = mutableListOf<String>()
         val where = StringBuilder("(")
         where.append("record_id LIKE ?")
-        args.add("%${trimmed%")
+        args.add("%${trimmed}%")
 
         if (phoneQuery != null) {
             where.append(" OR phone_norm LIKE ?")
-            args.add("%${phoneQuery%")
+            args.add("%${phoneQuery}%")
         }
         where.append(")")
 
