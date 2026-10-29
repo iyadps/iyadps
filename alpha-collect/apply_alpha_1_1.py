@@ -30,9 +30,44 @@ def copy_file(source_rel: str, target_rel: str):
     print(f"Copied: {target_rel}")
 
 
-# 1) Advance the development release while preserving the 1.0.0 production baseline.
+# 1) Create an isolated test application that can coexist with Alpha Collect 1.0.0.
+replace_exact(
+    "collect_app/build.gradle",
+    "applicationId('com.alphainternational.collect')",
+    "applicationId('com.alphainternational.collect.test')",
+)
 replace_exact("collect_app/build.gradle", "versionCode 4151", "versionCode 4152")
-replace_exact("collect_app/build.gradle", "versionName '1.0.0'", "versionName '1.1.0-dev1'")
+replace_exact("collect_app/build.gradle", "versionName '1.0.0'", "versionName '1.1.0-test1'")
+
+# The Google Services plugin validates the package name for every build type.
+for google_services in (
+    "collect_app/google-services.json",
+    "collect_app/src/debug/google-services.json",
+    "collect_app/src/release/google-services.json",
+):
+    replace_exact(
+        google_services,
+        '"package_name": "com.alphainternational.collect"',
+        '"package_name": "com.alphainternational.collect.test"',
+    )
+
+# Make the test build visually distinct and prevent provider-authority collisions
+# with the production Alpha Collect app installed on the same tablet.
+replace_exact(
+    "collect_app/src/main/res/values/strings.xml",
+    '<string name="collect_app_name" translatable="false">Alpha Collect</string>',
+    '<string name="collect_app_name" translatable="false">Alpha Collect Test</string>',
+)
+replace_exact(
+    "collect_app/src/main/AndroidManifest.xml",
+    'android:authorities="org.koboc.collect.android.provider.odk.forms"',
+    'android:authorities="com.alphainternational.collect.test.provider.odk.forms"',
+)
+replace_exact(
+    "collect_app/src/main/AndroidManifest.xml",
+    'android:authorities="org.koboc.collect.android.provider.odk.instances"',
+    'android:authorities="com.alphainternational.collect.test.provider.odk.instances"',
+)
 
 # 2) Add Alpha Field Operations source, resources and focused parser tests.
 copy_file(
@@ -116,6 +151,6 @@ replace_exact(
 )
 
 print("\nAlpha Collect 1.1 development customization applied.")
-print("Version: 1.1.0-dev1 (4152)")
+print("Test package: com.alphainternational.collect.test")\nprint("Version: 1.1.0-test1 (4152)")
 print("Features: field assignment, device identity, offline SQLite master frame, local lookup and duplicate-risk checks.")
 print("The 1.0.0 production branch and APK are unchanged.")
