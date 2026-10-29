@@ -1,4 +1,4 @@
-# Alpha Collect 1.1 Development MVP
+# Alpha Collect 1.1 Test MVP
 
 This branch extends the verified Alpha Collect 1.0.0 baseline without changing the 1.0.0 production release.
 
@@ -41,8 +41,8 @@ See `sample_master_frame.csv`.
 
 ## Version
 
-- Package: `com.alphainternational.collect`
-- Version name: `1.1.0-dev1`
+- Package: `com.alphainternational.collect.test`
+- Version name: `1.1.0-test1`
 - Version code: `4152`
 
 ## Deliberately not yet implemented
@@ -63,3 +63,8 @@ Those are later 1.1 milestones after dev1 validates the offline data model and e
 Background audio behavior remains unchanged from Alpha Collect 1.0.0: the recording controller is hidden for background-audio forms, but recording continues through Android's foreground microphone service and Android's system privacy indicators remain intact.
 
 The master frame is stored in app-private Android storage. Production hardening should add explicit encrypted-database key management before storing high-risk PII at scale.
+
+
+## Test distribution
+
+The CI test package uses the project's self-signed test key and a separate package ID. It is intentionally not the production Alpha signing identity. This allows `Alpha Collect Test` to be installed beside `Alpha Collect 1.0.0` on the same tablet without replacing or modifying production data.
