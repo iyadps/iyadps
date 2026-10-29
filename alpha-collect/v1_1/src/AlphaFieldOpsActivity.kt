@@ -139,8 +139,15 @@ class AlphaFieldOpsActivity : AppCompatActivity() {
     }
 
     private fun showDeviceId() {
-        val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
-        val shortId = if (androidId.length > 8) androidId.takeLast(8) else androidId
+        val androidId = Settings.Secure.getString(
+            contentResolver,
+            Settings.Secure.ANDROID_ID
+        ).orEmpty()
+        val shortId = when {
+            androidId.isBlank() -> "unavailable"
+            androidId.length > 8 -> androidId.takeLast(8)
+            else -> androidId
+        }
         deviceId.text = getString(R.string.alpha_device_value, shortId)
     }
 
