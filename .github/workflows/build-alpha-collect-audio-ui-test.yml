@@ -41,12 +41,12 @@ jobs:
           git checkout b8682768b4592f7105a7b7b278328726db4a282b
           chmod +x gradlew
 
-      - name: Apply Alpha 1.2 field-control customization
+      - name: Apply Alpha 1.2.1 hidden audio startup customization
         shell: bash
         run: |
-          python3 alpha-collect/apply_alpha_1_2_map.py kobo-collect
+          python3 alpha-collect/apply_alpha_audio_ui_test.py kobo-collect
 
-      - name: Run map, master-frame, GPS and background-audio regression tests
+      - name: Test first-frame hidden audio, map, master frame, and GPS rules
         working-directory: kobo-collect
         shell: bash
         run: |
@@ -74,32 +74,32 @@ jobs:
             exit 1
           fi
 
-          cp "$APK" dist/Alpha-Collect-1.2.0-test2.apk
+          cp "$APK" dist/Alpha-Collect-1.2.1-test1.apk
 
-          BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging dist/Alpha-Collect-1.2.0-test2.apk)"
+          BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging dist/Alpha-Collect-1.2.1-test1.apk)"
           echo "$BADGING" | head -n 10
           echo "$BADGING" | grep -q "package: name='com.alphainternational.collect.test'"
-          echo "$BADGING" | grep -q "versionCode='4154'"
-          echo "$BADGING" | grep -q "versionName='1.2.0-test2'"
+          echo "$BADGING" | grep -q "versionCode='4155'"
+          echo "$BADGING" | grep -q "versionName='1.2.1-test1'"
           echo "$BADGING" | grep -q "application-label:'Alpha Collect Test'"
 
-          PERMISSIONS="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump permissions dist/Alpha-Collect-1.2.0-test2.apk)"
+          PERMISSIONS="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump permissions dist/Alpha-Collect-1.2.1-test1.apk)"
           echo "$PERMISSIONS" | grep -q "android.permission.RECORD_AUDIO"
           echo "$PERMISSIONS" | grep -q "android.permission.ACCESS_FINE_LOCATION"
 
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/Alpha-Collect-1.2.0-test2.apk
-          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -P 16 -v 4 dist/Alpha-Collect-1.2.0-test2.apk
-          (cd dist && sha256sum Alpha-Collect-1.2.0-test2.apk > Alpha-Collect-1.2.0-test2.sha256)
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/Alpha-Collect-1.2.1-test1.apk
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -P 16 -v 4 dist/Alpha-Collect-1.2.1-test1.apk
+          (cd dist && sha256sum Alpha-Collect-1.2.1-test1.apk > Alpha-Collect-1.2.1-test1.sha256)
           cp alpha-collect/v1_2_map/TESTING.md alpha-collect/v1_2_map/sample* dist/
           printf 'Source commit: %s\nPinned Kobo: b8682768b4592f7105a7b7b278328726db4a282b\n' "$GITHUB_SHA" > dist/BUILD.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/Alpha-Collect-1.2.0-test2.apk > dist/SIGNATURE.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/Alpha-Collect-1.2.1-test1.apk > dist/SIGNATURE.txt
           echo "$BADGING" > dist/APK-METADATA.txt
           echo "$PERMISSIONS" > dist/PERMISSIONS.txt
 
       - name: Upload ready-to-test Alpha Collect 1.2.1 APK
         uses: actions/upload-artifact@v4
         with:
-          name: Alpha-Collect-1.2.0-test2-Ready
+          name: Alpha-Collect-1.2.1-test1-Ready
           path: dist/*
           if-no-files-found: error
           retention-days: 7
@@ -108,6 +108,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Alpha-map-test-results
+          name: Alpha-audio-startup-test-results
           path: kobo-collect/collect_app/build/test-results/
           retention-days: 14
