@@ -96,6 +96,50 @@ replace_exact(
             assertThat(fragment.binding.getRoot().getVisibility(), is(View.GONE));'''
 )
 
+
+# In background-audio mode only the container visibility is contractual;
+# child-level waveform state is irrelevant when the root never renders.
+replace_exact(
+    tests,
+    '''            assertThat(fragment.binding.getRoot().getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.volumeBar.getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.controls.getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.help.getVisibility(), is(View.GONE));
+        });
+    }
+
+    @Test
+    public void whenFormDoesNotHaveBackgroundRecording_andBackgroundRecordingIsDisabled_doesNotShowRecordingIsDisabled() {''',
+    '''            assertThat(fragment.binding.getRoot().getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.controls.getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.help.getVisibility(), is(View.GONE));
+        });
+    }
+
+    @Test
+    public void whenFormDoesNotHaveBackgroundRecording_andBackgroundRecordingIsDisabled_doesNotShowRecordingIsDisabled() {'''
+)
+replace_exact(
+    tests,
+    '''            assertThat(fragment.binding.getRoot().getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.volumeBar.getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.controls.getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.help.getVisibility(), is(View.GONE));
+        });
+    }
+
+    @Test
+    public void whenFormDoesNotHaveBackgroundRecording_andThereIsAnError_andSessionIsOver_doesNotThatThereIsAnError() {''',
+    '''            assertThat(fragment.binding.getRoot().getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.controls.getVisibility(), is(View.GONE));
+            assertThat(fragment.binding.help.getVisibility(), is(View.GONE));
+        });
+    }
+
+    @Test
+    public void whenFormDoesNotHaveBackgroundRecording_andThereIsAnError_andSessionIsOver_doesNotThatThereIsAnError() {'''
+)
+
 # Prove initial visibility, startup transition, pause/resume and fragment recreation.
 insert_before = '''    @Test
     public void whenFormDoesNotHaveBackgroundRecording_hidesHelpButton() {'''
