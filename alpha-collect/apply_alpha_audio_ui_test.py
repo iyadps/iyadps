@@ -6,7 +6,7 @@ ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 subprocess.run(
-    [sys.executable, str(SCRIPT_DIR / "apply_alpha_1_2.py"), str(ROOT)],
+    [sys.executable, str(SCRIPT_DIR / "apply_alpha_1_2_map.py"), str(ROOT)],
     check=True,
 )
 
@@ -196,12 +196,12 @@ new_tests = '''    @Test
 '''
 replace_exact(tests, insert_before, new_tests + insert_before)
 
-replace_exact("collect_app/build.gradle", "versionCode 4153", "versionCode 4154")
+replace_exact("collect_app/build.gradle", "versionCode 4154", "versionCode 4155")
 replace_exact(
     "collect_app/build.gradle",
-    "versionName '1.2.0-test1'",
+    "versionName '1.2.0-test2'",
     "versionName '1.2.1-test1'"
 )
 
-print("Alpha Collect audio UI hardening applied (test 1.2.1 / versionCode 4154).")
+print("Alpha Collect audio UI hardening applied (test 1.2.1 / versionCode 4155).")
 print("Consent/permission prompts and OS microphone indicators remain untouched.")
