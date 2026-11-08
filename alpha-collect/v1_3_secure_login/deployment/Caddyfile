@@ -1,0 +1,25 @@
+{
+    email {$ACME_EMAIL}
+    auto_https on
+}
+
+{$ALPHA_DOMAIN} {
+    encode zstd gzip
+    request_body {
+        max_size 26MB
+    }
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        X-Frame-Options "DENY"
+        -Server
+    }
+    reverse_proxy app:8000 {
+        header_up X-Forwarded-Proto https
+    }
+    log {
+        output stdout
+        format json
+    }
+}
