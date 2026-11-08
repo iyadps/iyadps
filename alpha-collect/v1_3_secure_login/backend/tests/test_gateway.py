@@ -34,7 +34,7 @@ def test_authorization_and_form_filter(monkeypatch):
     token=login()
     r=client.get("/v1/forms",headers=token)
     assert r.status_code==200
-    assert r.json()=={"forms":[{"project_id":"PILOT","title":"Pilot Questionnaire","form_id":"pilot_form"}]}
+    assert r.json()=={"forms":[{"project_id":"PILOT","title":"Pilot Questionnaire"}]}
     assert client.get("/v1/forms/PRIVATE/xform", headers=token).status_code==403
     assert client.get("/v1/forms/unmapped/xform",headers=token).status_code==403
 
