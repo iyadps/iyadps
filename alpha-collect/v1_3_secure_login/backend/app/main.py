@@ -245,3 +245,6 @@ from .collect_auth import router as collect_auth_router
 from .openrosa_bridge import router as openrosa_bridge_router
 app.include_router(collect_auth_router)
 app.include_router(openrosa_bridge_router)
+
+from .admin_portal import router as admin_portal_router
+app.include_router(admin_portal_router)
