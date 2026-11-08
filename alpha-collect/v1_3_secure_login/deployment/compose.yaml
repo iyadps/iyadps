@@ -1,0 +1,58 @@
+name: alpha-collect-staging
+services:
+  reverse-proxy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      ALPHA_DOMAIN: ${ALPHA_DOMAIN:?Set ALPHA_DOMAIN in .env}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - frontend
+  app:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./secrets/backend.env
+    environment:
+      ALPHA_DB_PATH: /data/alpha_collect.db
+      ALPHA_ENABLE_SUBMISSIONS: "false"
+    volumes:
+      - alpha_db:/data
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=3).read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    driver: bridge
+volumes:
+  caddy_data:
+  caddy_config:
+  alpha_db:
