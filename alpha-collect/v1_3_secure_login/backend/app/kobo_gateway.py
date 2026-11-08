@@ -28,8 +28,9 @@ def mapping():
     for project, value in data.items():
         if (not isinstance(project, str) or not ID.fullmatch(project)
                 or not isinstance(value, dict)
-                or set(value) != {"uid", "title"}
+                or set(value) != {"uid", "title", "form_id"}
                 or not isinstance(value["uid"], str) or not UID.fullmatch(value["uid"])
+                or not isinstance(value["form_id"], str) or not ID.fullmatch(value["form_id"])
                 or not isinstance(value["title"], str)
                 or not 1 <= len(value["title"]) <= 120):
             raise HTTPException(503, "Invalid Kobo project mapping")
