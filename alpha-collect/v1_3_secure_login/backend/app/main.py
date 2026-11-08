@@ -1,4 +1,4 @@
-"""Alpha Collect identity service - pilot backend (no Kobo gateway yet).
+"""Alpha Collect identity service - pilot backend with read-only Kobo XForm gateway.
 
 Run behind an HTTPS reverse proxy. Never deploy with example admin secrets.
 """
@@ -236,3 +236,7 @@ def assign(data: AssignRequest, admin=Depends(admin_user)):
 @app.get("/health")
 def health():
     return {"status":"ok"}
+
+# Import after identity functions are declared to avoid a circular import at startup.
+from .kobo_gateway import router as kobo_router
+app.include_router(kobo_router)
