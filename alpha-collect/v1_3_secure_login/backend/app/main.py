@@ -240,3 +240,8 @@ def health():
 # Import after identity functions are declared to avoid a circular import at startup.
 from .kobo_gateway import router as kobo_router
 app.include_router(kobo_router)
+
+from .collect_auth import router as collect_auth_router
+from .openrosa_bridge import router as openrosa_bridge_router
+app.include_router(collect_auth_router)
+app.include_router(openrosa_bridge_router)
