@@ -1,0 +1,7 @@
+.env
+secrets/backend.env
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+backup/
