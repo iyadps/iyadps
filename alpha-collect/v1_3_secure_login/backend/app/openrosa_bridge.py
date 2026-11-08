@@ -137,8 +137,57 @@ def submission_head(user=Depends(collect_user)):
 
 @router.post("/submission")
 async def submission(request:Request,user=Depends(collect_user)):
-    # Safety: never acknowledge receipt of interview data when the bridge
-    # cannot conclusively confirm the upstream Kobo acceptance.
-    # Submission forwarding remains disabled until the exact Kobo upload
-    # protocol, media handling, and retry idempotency are integration-tested.
-    raise HTTPException(503, "Kobo submission bridge not activated")
+    # Feature gated until non-production server integration is verified.
+    if os.environ.get("ALPHA_ENABLE_SUBMISSIONS", "false").lower() != "true":
+        raise HTTPException(503, "Kobo submission bridge not activated")
+    size_header = request.headers.get("content-length")
+    if not size_header or not size_header.isdecimal() or int(size_header) > MAX_SUBMISSION:
+        raise HTTPException(413, "Submission length unknown or exceeds pilot limit")
+    try:
+        parts = await request.form(max_files=30, max_fields=10)
+    except Exception:
+        raise HTTPException(400, "Malformed submission multipart content")
+    files=[]
+    size=0
+    xml_bytes=None
+    try:
+        for key,value in parts.multi_items():
+            if not hasattr(value, "read"):
+                raise HTTPException(400, "Unexpected non-file submission field")
+            filename=value.filename or key
+            if not re.fullmatch(r"[A-Za-z0-9_.-]{1,150}", filename):
+                raise HTTPException(400, "Invalid submission filename")
+            blob=await value.read()
+            size+=len(blob)
+            if size>MAX_SUBMISSION:
+                raise HTTPException(413, "Submission exceeds limit")
+            if key=="xml_submission_file":
+                if xml_bytes is not None:
+                    raise HTTPException(400, "Duplicate submission XML")
+                xml_bytes=blob
+            files.append((key,(filename,blob,value.content_type or "application/octet-stream")))
+    finally:
+        await parts.close()
+    if not xml_bytes or len(xml_bytes)>2_000_000 or b"<!DOCTYPE" in xml_bytes.upper() or b"<!ENTITY" in xml_bytes.upper():
+        raise HTTPException(400, "Missing or unsafe submission XML")
+    try:
+        root=ET.fromstring(xml_bytes)
+        form_id=root.tag.rsplit("}",1)[-1]
+    except ET.ParseError:
+        raise HTTPException(400, "Invalid submission XML")
+    if not any(record.get("form_id")==form_id for record in form_records(user).values()):
+        raise HTTPException(403, "Form is not assigned to enumerator")
+    owner_url,headers=upstream()
+    headers["Accept"]="text/xml"
+    try:
+        with client() as http:
+            response=http.post(owner_url+"/submission",headers=headers,files=files)
+    except httpx.RequestError:
+        # No positive acknowledgement: Collect must retain the queued instance.
+        raise HTTPException(502, "Kobo acknowledgement unavailable; retain local submission")
+    if response.status_code != 201:
+        # A timeout or 409 may require human reconciliation using instanceID.
+        raise HTTPException(502, "Kobo did not confirm successful receipt; retain local submission")
+    if len(response.content)>32_768:
+        raise HTTPException(502, "Unexpected Kobo acknowledgement size")
+    return openrosa_response(response.content,status=201)
