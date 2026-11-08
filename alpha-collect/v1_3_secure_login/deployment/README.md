@@ -69,3 +69,17 @@ docker compose --env-file .env up -d --build
 
 Never run `docker compose down -v` unless you intend to irreversibly delete
 named database and TLS state volumes. Test backups and restoration off-host.
+
+## Backup utility and acceptance
+
+The new `scripts/backup-host.sh` wrapper creates a SQLite-consistent local snapshot using the running API container. Example:
+
+```bash
+bash scripts/backup-host.sh /srv/alpha-secure-backups
+```
+
+It requires an existing healthy deployment. Store results in a restricted directory and **encrypt/replicate them off-host**; the script is not an automated off-host backup, and does not by itself satisfy the recovery policy.
+
+Use `STAGING_ACCEPTANCE.md` to record actual DNS, HTTPS, server health, authentication, Kobo test and device test evidence before approving any field release.
+
+**Do not confuse prepared deployment files with a deployed, running service.** No hosting purchase, DNS change, credential setup, CI success or public app deployment is implied by these commits.
