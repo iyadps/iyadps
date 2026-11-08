@@ -27,19 +27,19 @@ def login():
 
 def test_authorization_and_form_filter(monkeypatch):
     monkeypatch.setenv("ALPHA_KOBO_PROJECTS", json.dumps({
-        "PILOT":{"uid":UID,"title":"Pilot Questionnaire"},
-        "PRIVATE":{"uid":"a111111111111111","title":"Restricted Survey"}
+        "PILOT":{"uid":UID,"title":"Pilot Questionnaire","form_id":"pilot_form"},
+        "PRIVATE":{"uid":"a111111111111111","title":"Restricted Survey","form_id":"private_form"}
     }))
     assert client.get("/v1/forms").status_code==401
     token=login()
     r=client.get("/v1/forms",headers=token)
     assert r.status_code==200
-    assert r.json()=={"forms":[{"project_id":"PILOT","title":"Pilot Questionnaire"}]}
+    assert r.json()=={"forms":[{"project_id":"PILOT","title":"Pilot Questionnaire","form_id":"pilot_form"}]}
     assert client.get("/v1/forms/PRIVATE/xform", headers=token).status_code==403
     assert client.get("/v1/forms/unmapped/xform",headers=token).status_code==403
 
 def test_xform_proxy_fixed_host_no_redirect(monkeypatch):
-    monkeypatch.setenv("ALPHA_KOBO_PROJECTS",json.dumps({"PILOT":{"uid":UID,"title":"Pilot"}}))
+    monkeypatch.setenv("ALPHA_KOBO_PROJECTS",json.dumps({"PILOT":{"uid":UID,"title":"Pilot","form_id":"pilot_form"}}))
     monkeypatch.setenv("ALPHA_KOBO_BASE_URL","https://kf.kobotoolbox.org")
     monkeypatch.setenv("ALPHA_KOBO_API_TOKEN","test-token-not-production")
     def handler(req):
@@ -57,13 +57,13 @@ def test_xform_proxy_fixed_host_no_redirect(monkeypatch):
         app.dependency_overrides.clear()
 
 def test_bad_kobo_host_rejected(monkeypatch):
-    monkeypatch.setenv("ALPHA_KOBO_PROJECTS",json.dumps({"PILOT":{"uid":UID,"title":"Pilot"}}))
+    monkeypatch.setenv("ALPHA_KOBO_PROJECTS",json.dumps({"PILOT":{"uid":UID,"title":"Pilot","form_id":"pilot_form"}}))
     monkeypatch.setenv("ALPHA_KOBO_BASE_URL","https://attacker.example.org")
     monkeypatch.setenv("ALPHA_KOBO_API_TOKEN","test-token")
     assert client.get("/v1/forms/PILOT/xform",headers=login()).status_code==503
 
 def test_no_redirect_and_size_limit(monkeypatch):
-    monkeypatch.setenv("ALPHA_KOBO_PROJECTS",json.dumps({"PILOT":{"uid":UID,"title":"Pilot"}}))
+    monkeypatch.setenv("ALPHA_KOBO_PROJECTS",json.dumps({"PILOT":{"uid":UID,"title":"Pilot","form_id":"pilot_form"}}))
     monkeypatch.setenv("ALPHA_KOBO_BASE_URL","https://kf.kobotoolbox.org")
     monkeypatch.setenv("ALPHA_KOBO_API_TOKEN","test-token")
     for response in (httpx.Response(302,headers={"Location":"https://evil.example/"}),
