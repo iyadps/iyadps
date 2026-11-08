@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alpha Collect | Administration</title>
+<style>
+:root{font:15px system-ui,sans-serif;color:#192538;background:#f4f7fb}
+*{box-sizing:border-box}body{margin:0}header{background:#123659;color:white;padding:22px 5vw}header h1{margin:0;font-size:22px}header p{opacity:.8;margin:6px 0 0}
+main{max-width:1070px;margin:25px auto;padding:0 20px}
+.card{background:white;border:1px solid #dce3ef;border-radius:14px;padding:22px;margin:15px 0;box-shadow:0 3px 14px #0e2a4c0b}
+h2{font-size:18px;margin:0 0 15px}label{display:block;font-size:13px;font-weight:650;margin:12px 0 5px}
+input{width:100%;border:1px solid #bbc9d8;border-radius:7px;padding:11px;background:white;font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+button{border:0;border-radius:7px;padding:10px 14px;font:inherit;background:#123e68;color:white;cursor:pointer}
+button.secondary{background:#dbe6f4;color:#113858}button:disabled{opacity:.45;cursor:default}
+tr{border-bottom:1px solid #e3e9f2}td,th{text-align:left;padding:11px;font-size:13px}table{width:100%;border-collapse:collapse}
+.muted{color:#53677d;font-size:13px}.status{min-height:25px}.error{color:#a42323}.ok{color:#08754d}
+.hidden{display:none}#workspace{display:none}footer{color:#596d80;font-size:12px;margin:18px 0}
+</style>
+</head>
+<body>
+<header><h1>ALPHA COLLECT <small style="font-weight:400">/ Administration</small></h1><p>Enumerator approval, devices and field assignments</p></header>
+<main>
+<section class="card" id="loginCard"><h2>Supervisor sign-in</h2>
+<p class="muted">Sign in with an approved Alpha admin account and its registered administration-device identifier.</p>
+<div class="grid"><div><label for="u">Admin username</label><input id="u" autocomplete="username"></div>
+<div><label for="p">Password</label><input id="p" type="password" autocomplete="current-password"></div>
+<div><label for="d">Admin device ID</label><input id="d" autocomplete="off"></div></div>
+<p><button id="signin">Sign in</button></p></section>
+<div id="workspace">
+<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2>Pending approvals</h2>
+<div><button class="secondary" id="refresh">Refresh</button> <button class="secondary" id="logout">Sign out</button></div></div>
+<p class="muted">Account and device must both be approved. Users cannot access fieldwork until both approvals are complete.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Enumerator</th><th>Account</th><th>Device ID</th><th>Device</th><th>Actions</th></tr></thead><tbody id="pending"></tbody></table></div></div>
+<div class="card"><h2>Assign fieldwork</h2><p class="muted">Assignments must refer to project IDs configured on the Alpha gateway.</p>
+<div class="grid"><div><label for="enum">Enumerator username</label><input id="enum"></div>
+<div><label for="project">Project ID</label><input id="project"></div>
+<div><label for="ea">Enumeration area (EA)</label><input id="ea"></div></div>
+<p><button id="assign">Assign project / EA</button></p></div>
+<div class="card"><h2>Access management</h2>
+<p class="muted">Changes take effect on the server immediately. Already downloaded offline interviews remain on the tablet until synchronized or removed by an authorized operator.</p>
+<div class="grid"><div><label for="disable">Disable enumerator username</label><input id="disable">
+<p><button id="disableBtn" class="secondary">Disable enumerator</button></p></div>
+<div><label for="revoke">Revoke device ID</label><input id="revoke">
+<p><button id="revokeBtn" class="secondary">Revoke device</button></p></div></div></div>
+</div>
+<div id="msg" class="status" role="status" aria-live="polite"></div>
+<footer>Alpha International • Pilot administrator interface • TLS, MFA and audit logging are required before production deployment.</footer>
+</main>
+<script>
+(() => {
+"use strict";
+let token="";
+const el=id=>document.getElementById(id);
+const note=(message,failed=false)=>{const area=el("msg");area.textContent=message;area.className="status "+(failed?"error":"ok")};
+async function call(path,method="GET",body){
+ const response=await fetch(path,{method,headers:{"Authorization":"Bearer "+token,...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined,cache:"no-store",credentials:"same-origin"});
+ const data=await response.json().catch(()=>({detail:"Unexpected response"}));
+ if(!response.ok)throw Error(typeof data.detail==="string"?data.detail:"Request failed ("+response.status+")");
+ return data;
+}
+async function reload(){
+ const result=await call("/v1/admin/pending");
+ const target=el("pending");target.textContent="";
+ if(!result.pending.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=5;td.textContent="No pending registrations";tr.append(td);target.append(tr);return}
+ for(const item of result.pending){
+  const tr=document.createElement("tr");
+  for(const key of ["username","user_status","device_id","device_status"]){const td=document.createElement("td");td.textContent=item[key];tr.append(td)}
+  const td=document.createElement("td");
+  const approve=document.createElement("button");approve.textContent="Approve account";approve.disabled=item.user_status!=="pending";
+  approve.onclick=()=>action("/v1/admin/users/"+encodeURIComponent(item.username)+"/approve");
+  td.append(approve," ");
+  const device=document.createElement("button");device.textContent="Approve device";device.disabled=item.device_status!=="pending";
+  device.onclick=()=>action("/v1/admin/devices/"+encodeURIComponent(item.device_id)+"/approve");
+  td.append(device);tr.append(td);target.append(tr)
+ }
+}
+async function action(path,body){try{await call(path,"POST",body);note("Saved.");await reload()}catch(e){note(e.message,true)}}
+el("signin").onclick=async()=>{
+ try{
+ const response=await fetch("/v1/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:el("u").value.trim(),password:el("p").value,device_id:el("d").value.trim()}),cache:"no-store"});
+ const data=await response.json();if(!response.ok)throw Error("Sign-in unsuccessful or admin tablet not approved");
+ token=data.access_token;el("p").value="";
+ await reload();el("loginCard").classList.add("hidden");el("workspace").style.display="block";note("Signed in. Session expires after 30 minutes.")
+ }catch(e){token="";note(e.message,true)}
+};
+el("refresh").onclick=async()=>{try{await reload();note("Updated")}catch(e){note(e.message,true)}};
+el("logout").onclick=()=>{token="";el("workspace").style.display="none";el("loginCard").classList.remove("hidden");note("Signed out")};
+el("assign").onclick=()=>action("/v1/admin/assign",{username:el("enum").value.trim(),project_id:el("project").value.trim(),ea_id:el("ea").value.trim()});
+el("disableBtn").onclick=()=>{const n=el("disable").value.trim();if(n&&confirm("Disable enumerator "+n+"?"))action("/v1/admin/users/"+encodeURIComponent(n)+"/disable")};
+el("revokeBtn").onclick=()=>{const n=el("revoke").value.trim();if(n&&confirm("Revoke tablet "+n+"?"))action("/v1/admin/devices/"+encodeURIComponent(n)+"/revoke")};
+})();
+</script>
+</body>
+</html>
