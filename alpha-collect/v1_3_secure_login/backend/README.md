@@ -52,3 +52,29 @@ export ALPHA_KOBO_PROJECTS='{"PILOT":{"uid":"a0123456789koboform","title":"Pilot
 - Test with a non-production form: the Kobo XForm response semantics, media, and Collect compatibility are **not validated yet**.
 - No submission upload endpoint has been enabled; partial data transfer would be unsafe. OpenRosa protocol compatibility remains a separate required integration milestone.
 - Do not place `ALPHA_KOBO_API_TOKEN` in the GitHub repository, APK, GitHub Actions logs, or test fixtures.
+
+## Alpha Collect 1.3 integration components
+
+- Android first-run UI customization: `../../apply_alpha_1_3_secure_login.py`.
+- Alpha registration and 30-minute sign-in session: `POST /v1/register`, `POST /v1/login`.
+- Approved device-specific synchronization secret: `POST /v1/collect-credential` with Bearer session.
+- The Android client uses that per-device secret as its KoboCollect **project password**, connecting to Alpha's preconfigured server — **not** to Kobo directly.
+- OpenRosa Basic authentication validates that same device secret against a revocable server-side hash.
+- Form browsing: `GET /formList` filters by assigned Kobo form IDs; `GET /formXml/{project_id}` returns server-proxied XForm XML.
+- Submission: `POST /submission` accepts form XML and attachments only when `ALPHA_ENABLE_SUBMISSIONS=true`. Requires authorized formID and upstream Kobo 201 acceptance; otherwise reports an error so KoboCollect retains local data.
+- Form media manifests are **not finished** and return 501. Do not assign a form with external media to a field test until manifest handling is implemented.
+- Browser supervisor console at `/admin` (approved admin login with a registered admin device, currently no MFA).
+- Container build instructions and release blockers: `Dockerfile` and `DEPLOYMENT_AND_ACCEPTANCE.md`.
+
+### Backend configuration
+`ALPHA_COLLECT_PUBLIC_URL` must equal the Android build's exact Alpha HTTPS origin. `ALPHA_KOBO_OWNER` must name a dedicated Kobo account. `ALPHA_KOBO_PROJECTS` maps Alpha project IDs to both the Kobo KPI asset UID and deployed OpenRosa form ID.
+
+Example non-production mapping:
+
+```json
+{"PILOT":{"uid":"a0123456789koboform","form_id":"pilot_form","title":"Pilot Survey"}}
+```
+
+For server connection use `kf.kobotoolbox.org` (Global) or `eu.kobotoolbox.org` (EU) as the KPI API origin. The OpenRosa upstream URL is derived from it as `kc.kobotoolbox.org` or `kc-eu.kobotoolbox.org`. Never put the main Kobo account's password/API token inside Android code or APK resources.
+
+**Release status:** Code is committed; this is not a tested, production-ready APK. Build results, Kobo credentials, public TLS server URL, real server authentication, media, round-trip submission, retention, tablet tests and security review remain outstanding.
