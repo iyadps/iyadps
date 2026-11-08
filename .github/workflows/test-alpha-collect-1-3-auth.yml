@@ -1,0 +1,34 @@
+name: Alpha Collect 1.3 authentication pilot tests
+
+on:
+  push:
+    branches:
+      - alpha-collect-1.3-secure-login
+    paths:
+      - "alpha-collect/v1_3_secure_login/backend/**"
+      - ".github/workflows/test-alpha-collect-1-3-auth.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: alpha-collect/v1_3_secure_login/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: alpha-collect/v1_3_secure_login/backend/requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Compile Python
+        run: python -m compileall -q app tests
+      - name: Test registration, approval, assignments, revocation
+        run: pytest -q
